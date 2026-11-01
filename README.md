@@ -27,3 +27,22 @@ npm run dev
 - TypeScript
 - React
 - Tailwind CSS
+
+## FACTSHIELD AI — Integration Guide
+
+This is a frontend prototype. All backend calls live in `src/services/*` behind typed
+interfaces; with `VITE_USE_MOCK=true` (or no `VITE_API_BASE_URL`) they return clearly
+labelled demo data. Config is in `src/lib/config.ts`.
+
+| Service | Replace mock with |
+| --- | --- |
+| `verificationService` | Python/Flask API: `POST /api/verify/{text,image,link}` → job, `GET /api/jobs/:id` → `{ steps, contentLanguage, report }` |
+| `ocrService` | OCR engine on the backend (Tesseract, cloud vision) via `POST /api/ocr` |
+| `languageDetectionService` | Backend language-ID model (demo uses Unicode script ranges) |
+| `sourceSearchService` | Trusted-source / fact-check search API via `POST /api/sources` |
+| AI/LLM claim analysis | Called by the Flask pipeline, never from the browser |
+| `authService` | Firebase Auth or Supabase Auth (same `login/signup/guest/logout` shape) |
+| `reportService` | `GET/POST/DELETE /api/reports` |
+
+**API keys must live on the backend or in server environment variables only.** Nothing
+secret may use the `VITE_` prefix.
