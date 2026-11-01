@@ -11,3 +11,8 @@
 # Contact delivery correction
 - [x] Remove simulated sending, false success and placeholder contact details; preserve entered messages.
 - [ ] Connect and test actual delivery — blocked on an owner-controlled sending domain and recipient address.
+
+# Google Search Console setup
+- [x] Check existing linked account and request its verification tag.
+- [x] Add root verification metadata and a public-only router-derived sitemap.
+- [ ] Publish with approval, verify ownership, add the property and submit the live sitemap.
