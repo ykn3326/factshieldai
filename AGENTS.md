@@ -10,6 +10,7 @@
 <!-- LOVABLE:END -->
 
 ## Project rules
+- Page titles, descriptions and social descriptions belong to each content route through the SEO helper; the root holds sitewide metadata only to prevent repeated previews.
 - Sitemaps derive static paths from required route-level staticData.sitemap decisions; private and workflow routes stay excluded so new pages require an explicit visibility decision.
 - UI backend access goes through `src/services/*`; live verification uses a validated streaming TanStack endpoint and server-only helpers, never mock fallback. `USE_MOCK_DATA` applies only to legacy demo account/history features, so verification can be live without misrepresenting account security.
 - All UI text comes from typed dictionaries in `src/i18n` (`en.ts` defines the `Dict` shape; `hi.ts`/`pa.ts` must match) — every string must exist in all three languages.

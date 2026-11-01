@@ -10,7 +10,7 @@ import { seo } from "@/lib/seo";
 
 export const Route = createFileRoute("/welcome")({
   staticData: { sitemap: true },
-  head: () => seo("Welcome", "Log in, sign up or continue as a guest to verify suspicious content with FACTSHIELD AI."),
+  head: () => seo("Start a Fact Check — Guest or Account Access", "Choose English, Hindi or Punjabi and continue as a guest or with an account to start checking suspicious content with FACTSHIELD AI."),
   component: Welcome,
 });
 

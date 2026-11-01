@@ -16,3 +16,8 @@
 - [x] Check existing linked account and request its verification tag.
 - [x] Add root verification metadata and a public-only router-derived sitemap.
 - [x] Publish with approval, verify ownership, add the property and submit the live sitemap.
+
+# Outstanding SEO findings
+- [x] Improve generic page titles and route-specific social descriptions; verify rendered metadata on all 14 content routes.
+- [x] Recheck contact findings: no false success or placeholder remains; disabled delivery safeguard passes its test.
+- [ ] Resolve both contact findings by connecting actual delivery — blocked on a verified recipient and sending domain.

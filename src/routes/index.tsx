@@ -6,7 +6,7 @@ import { seo } from "@/lib/seo";
 
 export const Route = createFileRoute("/")({
   staticData: { sitemap: false },
-  head: () => seo("Verify the Truth Before You Believe It", "FACTSHIELD AI helps you check suspicious messages, screenshots and links in English, Hindi and Punjabi."),
+  head: () => seo("Evidence-based Content Verification", "FACTSHIELD AI by Team IGNITE checks submitted messages, screenshots and public links against retrieved web evidence, with reports in English, Hindi and Punjabi."),
   component: Index,
 });
 

@@ -10,7 +10,7 @@ import { seo } from "@/lib/seo";
 
 export const Route = createFileRoute("/home")({
   staticData: { sitemap: true },
-  head: () => seo("Home", "Don't believe everything you see. Verify suspicious WhatsApp messages, screenshots and links before you share."),
+  head: () => seo("Fact-check Messages, Screenshots and Links", "Check suspicious WhatsApp messages, screenshots and public links against web evidence with FACTSHIELD AI, in English, Hindi or Punjabi."),
   component: HomePage,
 });
 
