@@ -1,23 +1,7 @@
 import { Info, ShieldAlert } from "lucide-react";
 import { USE_MOCK_DATA } from "@/lib/config";
-import { useTranslation } from "@/context/LanguageContext";
 import { cn } from "@/lib/utils";
 
-export function PrototypeBadge({ className, short = false }: { className?: string; short?: boolean }) {
-  const { t } = useTranslation();
-  if (!USE_MOCK_DATA) return null;
-  return (
-    <span
-      title={t.common.prototype}
-      className={cn(
-        "inline-flex items-center gap-1.5 rounded-full border border-unverified/30 bg-unverified-soft px-2.5 py-1 text-xs font-semibold text-unverified",
-        className,
-      )}
-    >
-      {short ? t.common.prototypeShort : t.common.prototype}
-    </span>
-  );
-}
 
 export function DemoBanner({ text, className, show = USE_MOCK_DATA }: { text: string; className?: string; show?: boolean }) {
   if (!show) return null;
