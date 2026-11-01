@@ -53,7 +53,7 @@ export function Navbar() {
           <Logo />
         </Link>
         <PrototypeBadge short className="hidden md:inline-flex 2xl:hidden" />
-        <nav aria-label="Main" className="ml-2 hidden items-center gap-1 lg:flex">
+        <nav aria-label="Main" className="ml-2 hidden items-center gap-0.5 xl:flex">
           {links.map((l) => (
             <Link
               key={l.to}
@@ -108,7 +108,7 @@ export function Navbar() {
           )}
           <Sheet open={open} onOpenChange={setOpen}>
             <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" className="lg:hidden" aria-label={t.nav.openMenu}>
+              <Button variant="ghost" size="icon" className="xl:hidden" aria-label={t.nav.openMenu}>
                 <Menu className="h-6 w-6" />
               </Button>
             </SheetTrigger>
