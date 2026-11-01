@@ -85,7 +85,7 @@ export function validateComparison(result: Comparison, documents: RetrievedDocum
     if (["supports", "contradicts"].includes(evidence.relation) && !evidence.quotes.length) throw new Error("invalidEvidence");
   }
   const has = (index: number, relation: string) => result.evidence.some((e) => e.claimIndex === index && e.relation === relation && e.quotes.length > 0 && e.sourceIds.length > 0);
-  if (!documents.some((s) => s.text.trim())) {
+  if (!documents.some((s) => s.text.trim()) || result.sources.length === 0) {
     if (result.status !== "review") throw new Error("invalidEvidence");
   }
   if (result.status === "verified" && (claimCount === 0 || !Array.from({ length: claimCount }, (_, i) => i).every((i) => has(i, "supports") && !has(i, "contradicts")))) throw new Error("invalidEvidence");

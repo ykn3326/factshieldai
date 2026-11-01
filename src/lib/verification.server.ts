@@ -4,6 +4,7 @@ import type { z } from "zod";
 import { dictionaries } from "@/i18n";
 import type { Lang, Localized, StepKey, StepState, VerificationReport, VerificationRequest } from "@/types";
 import { createLovableAiGatewayRunIdFetch } from "./ai/run-id.server.ts";
+import { retrieveWithBackoff } from "./retrieval-retry";
 import { comparisonSchema, extractionSchema, isPublicUrl, rankDocuments, sourceType, validateComparison, verificationRequestSchema, type RetrievedDocument } from "./verification-rules";
 
 class VerificationError extends Error {
@@ -39,11 +40,11 @@ async function firecrawl(path: string, body: JsonObject, signal: AbortSignal): P
   const key = process.env["FIRECRAWL_API_KEY"];
   const aiKey = process.env["LOVABLE_API_KEY"];
   if (!key || !aiKey) throw new VerificationError(503, "configuration");
-  const response = await fetch(`https://connector-gateway.lovable.dev/firecrawl/v2/${path}`, {
+  const response = await retrieveWithBackoff(() => fetch(`https://connector-gateway.lovable.dev/firecrawl/v2/${path}`, {
     method: "POST", signal,
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${aiKey}`, "X-Connection-Api-Key": key },
     body: JSON.stringify(body),
-  });
+  }), signal);
   if (!response.ok) {
     const message = safeMessage(await response.text());
     console.error("Evidence retrieval failed", response.status, message);

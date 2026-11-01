@@ -17,3 +17,4 @@
 - App state lives in React contexts under `src/context` (Language, Auth, Verification); guests' reports use sessionStorage only.
 - AI calls use request-scoped streamed Responses and gateway-issued correlation IDs; provider access blocks persist in a server-only Cloud table so reloads cannot automatically replay denied work.
 - Live verdicts validate claim-bound quotations against retrieved page text and resolve citation IDs to server-held URLs; model output cannot invent sources or publication dates.
+- Evidence retrieval has one bounded, abortable backoff layer for 429/5xx only; respect Retry-After, keep requests sequential, and never retry access denials.
