@@ -52,13 +52,13 @@ export function Navbar() {
         <Link to="/home" aria-label="FACTSHIELD AI — Home" className="shrink-0 rounded-lg">
           <Logo />
         </Link>
-        <PrototypeBadge className="hidden md:inline-flex xl:hidden" />
-        <nav aria-label="Main" className="ml-4 hidden items-center gap-1 lg:flex">
+        <PrototypeBadge short className="hidden md:inline-flex 2xl:hidden" />
+        <nav aria-label="Main" className="ml-2 hidden items-center gap-1 lg:flex">
           {links.map((l) => (
             <Link
               key={l.to}
               to={l.to}
-              className="rounded-lg px-3 py-2 text-sm font-semibold text-muted-foreground transition-colors hover:bg-surface hover:text-navy"
+              className="whitespace-nowrap rounded-lg px-2.5 py-2 text-sm font-semibold text-muted-foreground transition-colors hover:bg-surface hover:text-navy"
               activeProps={{ className: "bg-surface text-primary" }}
             >
               {l.label}
@@ -66,7 +66,7 @@ export function Navbar() {
           ))}
         </nav>
         <div className="ml-auto flex items-center gap-1.5">
-          <PrototypeBadge className="hidden xl:inline-flex" />
+          <PrototypeBadge className="hidden 2xl:inline-flex" />
           <LanguageSelector className="hidden sm:inline-flex" />
           {isRegistered && user ? (
             <DropdownMenu>
@@ -94,7 +94,7 @@ export function Navbar() {
           ) : (
             <div className="hidden items-center gap-1.5 sm:flex">
               {user?.mode === "guest" && (
-                <span className="inline-flex items-center gap-1 rounded-full bg-surface px-2.5 py-1 text-xs font-semibold text-muted-foreground">
+                <span className="hidden xl:inline-flex items-center gap-1 rounded-full bg-surface px-2.5 py-1 text-xs font-semibold text-muted-foreground">
                   <UserRound className="h-3.5 w-3.5" aria-hidden /> {t.common.guest}
                 </span>
               )}

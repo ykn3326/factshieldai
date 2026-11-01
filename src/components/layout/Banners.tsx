@@ -3,7 +3,7 @@ import { USE_MOCK_DATA } from "@/lib/config";
 import { useTranslation } from "@/context/LanguageContext";
 import { cn } from "@/lib/utils";
 
-export function PrototypeBadge({ className }: { className?: string }) {
+export function PrototypeBadge({ className, short = false }: { className?: string; short?: boolean }) {
   const { t } = useTranslation();
   if (!USE_MOCK_DATA) return null;
   return (
@@ -15,7 +15,7 @@ export function PrototypeBadge({ className }: { className?: string }) {
       )}
     >
       <FlaskConical className="h-3.5 w-3.5" aria-hidden />
-      {t.common.prototype}
+      {short ? t.common.prototypeShort : t.common.prototype}
     </span>
   );
 }
