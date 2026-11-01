@@ -1,7 +1,6 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
   Outlet,
-  Link,
   createRootRouteWithContext,
   useRouter,
   HeadContent,
@@ -12,26 +11,31 @@ import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
+import { LanguageProvider, useTranslation } from "@/context/LanguageContext";
+import { AuthProvider } from "@/context/AuthContext";
+import { VerificationProvider } from "@/context/VerificationContext";
+import { Toaster } from "@/components/ui/sonner";
+import { SiteLayout } from "@/components/layout/SiteLayout";
+import { Button } from "@/components/ui/button";
+import { Link } from "@tanstack/react-router";
+import { ShieldQuestion, TriangleAlert } from "lucide-react";
 
 function NotFoundComponent() {
+  const { t } = useTranslation();
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4">
-      <div className="max-w-md text-center">
-        <h1 className="text-7xl font-bold text-foreground">404</h1>
-        <h2 className="mt-4 text-xl font-semibold text-foreground">Page not found</h2>
-        <p className="mt-2 text-sm text-muted-foreground">
-          The page you're looking for doesn't exist or has been moved.
-        </p>
-        <div className="mt-6">
-          <Link
-            to="/"
-            className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
-          >
-            Go home
-          </Link>
-        </div>
+    <SiteLayout>
+      <div className="mx-auto flex max-w-md flex-col items-center px-4 py-24 text-center">
+        <span className="flex h-20 w-20 items-center justify-center rounded-3xl bg-surface text-primary">
+          <ShieldQuestion className="h-10 w-10" aria-hidden />
+        </span>
+        <p className="mt-6 text-6xl font-extrabold text-navy">404</p>
+        <h1 className="mt-2 text-xl font-bold text-navy">{t.notFound.title}</h1>
+        <p className="mt-2 text-muted-foreground">{t.notFound.desc}</p>
+        <Button asChild size="lg" className="mt-6">
+          <Link to="/home">{t.notFound.home}</Link>
+        </Button>
       </div>
-    </div>
+    </SiteLayout>
   );
 }
 
@@ -45,28 +49,21 @@ function ErrorComponent({ error, reset }: ErrorComponentProps) {
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="max-w-md text-center">
-        <h1 className="text-xl font-semibold tracking-tight text-foreground">
-          This page didn't load
-        </h1>
-        <p className="mt-2 text-sm text-muted-foreground">
-          Something went wrong on our end. You can try refreshing or head back home.
-        </p>
+        <TriangleAlert className="mx-auto h-10 w-10 text-misleading" aria-hidden />
+        <h1 className="mt-4 text-xl font-bold text-navy">This page didn't load</h1>
+        <p className="mt-2 text-sm text-muted-foreground">Something went wrong. You can try again or head back home.</p>
         <div className="mt-6 flex flex-wrap justify-center gap-2">
-          <button
+          <Button
             onClick={() => {
               router.invalidate();
               reset();
             }}
-            className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
           >
             Try again
-          </button>
-          <a
-            href="/"
-            className="inline-flex items-center justify-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-accent"
-          >
-            Go home
-          </a>
+          </Button>
+          <Button asChild variant="outline">
+            <a href="/home">Go home</a>
+          </Button>
         </div>
       </div>
     </div>
@@ -78,21 +75,24 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lovable App" },
-      { name: "description", content: "Lovable Generated Project" },
-      { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "Lovable Generated Project" },
+      { title: "FACTSHIELD AI — Verify the Truth Before You Believe It" },
+      { name: "description", content: "AI-powered digital content verification in English, Hindi and Punjabi. Prototype by Team IGNITE." },
+      { name: "author", content: "Team IGNITE" },
+      { name: "theme-color", content: "#0A1F44" },
+      { property: "og:title", content: "FACTSHIELD AI" },
+      { property: "og:description", content: "Verify suspicious messages, screenshots and links before you share them." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:site", content: "@Lovable" },
     ],
     links: [
+      { rel: "stylesheet", href: appCss },
+      { rel: "icon", href: "/favicon.svg", type: "image/svg+xml" },
+      { rel: "preconnect", href: "https://fonts.googleapis.com" },
+      { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       {
         rel: "stylesheet",
-        href: appCss,
+        href: "https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Noto+Sans+Devanagari:wght@400;500;600;700;800&family=Noto+Sans+Gurmukhi:wght@400;500;600;700;800&display=swap",
       },
-      { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
     ],
   }),
   shellComponent: RootShell,
@@ -103,7 +103,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 
 function RootShell({ children }: { children: ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
         <HeadContent />
       </head>
@@ -120,8 +120,14 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-      <Outlet />
+      <LanguageProvider>
+        <AuthProvider>
+          <VerificationProvider>
+            <Outlet />
+            <Toaster position="top-center" richColors />
+          </VerificationProvider>
+        </AuthProvider>
+      </LanguageProvider>
     </QueryClientProvider>
   );
 }

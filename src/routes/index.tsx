@@ -1,24 +1,25 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useEffect } from "react";
+import { useAuth } from "@/context/AuthContext";
+import { ShieldMark } from "@/components/layout/Logo";
+import { seo } from "@/lib/seo";
 
-// No head() here: the home route inherits title/description/og/twitter from
-// __root.tsx, and ships no og:image so serve-time hosting can inject the
-// project's social preview (explicit og:image or latest screenshot).
 export const Route = createFileRoute("/")({
+  head: () => seo("Verify the Truth Before You Believe It", "FACTSHIELD AI helps you check suspicious messages, screenshots and links in English, Hindi and Punjabi."),
   component: Index,
 });
 
-// IMPORTANT: Replace this placeholder. See ./README.md for routing conventions.
+/** First visit → /welcome; returning session → /home. */
 function Index() {
+  const { user, ready } = useAuth();
+  const navigate = useNavigate();
+  useEffect(() => {
+    if (ready) navigate({ to: user ? "/home" : "/welcome", replace: true });
+  }, [ready, user, navigate]);
   return (
-    <div
-      className="flex min-h-screen items-center justify-center"
-      style={{ backgroundColor: "#fcfbf8" }}
-    >
-      <img
-        data-lovable-blank-page-placeholder="REMOVE_THIS"
-        src="https://cdn.gpteng.co/blank-app-v1.svg"
-        alt="Your app will live here!"
-      />
+    <div className="flex min-h-screen items-center justify-center bg-brand">
+      <ShieldMark className="h-16 w-16 animate-pulse" />
+      <span className="sr-only">Loading FACTSHIELD AI</span>
     </div>
   );
 }
