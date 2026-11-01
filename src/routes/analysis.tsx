@@ -47,6 +47,7 @@ function AnalysisPage() {
   const [error, setError] = useState(false);
   const [errorCode, setErrorCode] = useState<keyof typeof dictionaries.en.liveErrors>("analysisFailed");
   const [errorDetail, setErrorDetail] = useState("");
+  const [errorStatus, setErrorStatus] = useState<number | undefined>();
   const [attempt, setAttempt] = useState(0);
   const ctrl = useRef<AbortController | null>(null);
 
@@ -57,6 +58,7 @@ function AnalysisPage() {
     setSteps(initSteps());
     setError(false);
     setErrorDetail("");
+    setErrorStatus(undefined);
     setContentLang(null);
     verificationService
       .run(job, {
@@ -78,6 +80,7 @@ function AnalysisPage() {
         setError(true);
         setErrorCode(e.code && e.code in dictionaries.en.liveErrors ? e.code : "interrupted");
         setErrorDetail(e.detail ?? "");
+        setErrorStatus(e.status);
       });
     return () => ac.abort();
   }, [ready, job, attempt, addReport, navigate]);
@@ -169,7 +172,7 @@ function AnalysisPage() {
                 <p className="mt-1 text-sm text-navy">{dictionaries[req.reportLang].liveErrors[errorCode]}</p>
                 {errorDetail && <p className="mt-2 break-words text-sm text-navy">{errorDetail}</p>}
                 <div className="mt-4 flex flex-wrap gap-2">
-                  <Button onClick={() => setAttempt((a) => a + 1)}>{t.common.tryAgain}</Button>
+                  {![402, 403, 404].includes(errorStatus ?? 0) && <Button onClick={() => setAttempt((a) => a + 1)}>{t.common.tryAgain}</Button>}
                   <Button variant="outline" asChild><Link to="/verify">{t.common.goBack}</Link></Button>
                 </div>
               </div>

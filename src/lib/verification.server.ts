@@ -69,7 +69,7 @@ function toDocument(value: unknown, index: number): RetrievedDocument | null {
     snippet: str(item["description"]).slice(0, 1500),
     ...(publicationDate(metadata, item) ? { publishedAt: publicationDate(metadata, item) } : {}),
     retrievedAt: new Date().toISOString(),
-    ...(str(metadata["cachedAt"]) ? { cachedAt: str(metadata["cachedAt"]) } : {}),
+    ...(str(metadata["cachedAt"]) && !Number.isNaN(Date.parse(str(metadata["cachedAt"]))) ? { cachedAt: str(metadata["cachedAt"]) } : {}),
     type: sourceType(url),
   };
 }
