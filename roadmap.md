@@ -7,3 +7,7 @@
 - [x] Run rules tests and real guest verification, image/link and failure checks.
 - [x] Finish production-quality verification checks and resolve remaining failures from the latest request.
 - [x] Remove the selected warning icon while preserving honest demo labels.
+
+# Contact delivery correction
+- [x] Remove simulated sending, false success and placeholder contact details; preserve entered messages.
+- [ ] Connect and test actual delivery — blocked on an owner-controlled sending domain and recipient address.

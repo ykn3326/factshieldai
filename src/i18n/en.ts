@@ -319,7 +319,10 @@ const en = {
   },
   contact: {
     title: "Contact Us",
-    sub: "Questions, feedback or partnership ideas — send us a message.",
+    sub: "Questions, feedback or partnership ideas.",
+    unavailable: "Contact message sending is currently unavailable. No messages will be sent or saved.",
+    notSent: "Your message was not sent. The contact service is not connected; your entries have not been cleared.",
+    detailsPending: "Verified contact details will be published here when available.",
     name: "Your name",
     email: "Email address",
     subject: "Subject",
