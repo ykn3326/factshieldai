@@ -5,4 +5,5 @@
  * Python/Flask backend or in server environment variables only.
  */
 export const API_BASE_URL: string = import.meta.env["VITE_API_BASE_URL"] ?? "";
+/** Legacy demo account/history flag only. Verification always uses the live server endpoint. */
 export const USE_MOCK_DATA: boolean = (import.meta.env["VITE_USE_MOCK"] ?? "true") !== "false" || !API_BASE_URL;
