@@ -14,7 +14,27 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      verification_service_blocks: {
+        Row: {
+          blocked_at: string
+          message: string
+          service: string
+          status: number
+        }
+        Insert: {
+          blocked_at?: string
+          message: string
+          service: string
+          status: number
+        }
+        Update: {
+          blocked_at?: string
+          message?: string
+          service?: string
+          status?: number
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
