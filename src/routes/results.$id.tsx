@@ -34,6 +34,7 @@ import { cn } from "@/lib/utils";
 import type { Lang, VerificationReport } from "@/types";
 
 export const Route = createFileRoute("/results/$id")({
+  staticData: { sitemap: false },
   head: () => ({ ...seo("Verification Report", "Your FACTSHIELD AI verification report with status, explanation, evidence and sources."), }),
   component: ResultsPage,
 });

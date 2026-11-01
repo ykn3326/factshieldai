@@ -19,6 +19,7 @@ import { cn } from "@/lib/utils";
 import { errText } from "@/lib/errText";
 
 export const Route = createFileRoute("/signup")({
+  staticData: { sitemap: false },
   head: () => seo("Sign Up", "Create a free FACTSHIELD AI account to save reports and set your preferred language."),
   component: SignupPage,
 });

@@ -49,6 +49,7 @@ const TABS = ["overview", "history", "saved", "language", "profile"] as const;
 type Tab = (typeof TABS)[number];
 
 export const Route = createFileRoute("/dashboard")({
+  staticData: { sitemap: false },
   validateSearch: z.object({ tab: z.enum(TABS).optional() }),
   head: () => seo("Dashboard", "Your FACTSHIELD AI verification history, saved reports and settings."),
   component: DashboardPage,

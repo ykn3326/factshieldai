@@ -31,6 +31,7 @@ import { cn } from "@/lib/utils";
 import type { ContentLang, StepKey, StepState } from "@/types";
 
 export const Route = createFileRoute("/analysis")({
+  staticData: { sitemap: false },
   head: () => seo("Analysing", "Follow each step while FACTSHIELD AI prepares your verification report."),
   component: AnalysisPage,
 });

@@ -71,6 +71,7 @@ function ErrorComponent({ error, reset }: ErrorComponentProps) {
 }
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
+  staticData: { sitemap: false },
   head: () => ({
     meta: [
       { charSet: "utf-8" },
@@ -78,6 +79,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { title: "FACTSHIELD AI — Verify the Truth Before You Believe It" },
       { name: "description", content: "AI-powered digital content verification in English, Hindi and Punjabi, by Team IGNITE." },
       { name: "author", content: "Team IGNITE" },
+      { name: "google-site-verification", content: "da6aNWETs7Yvh02GiyyDLzyKvZVHZHiz_yFXlTONHjs" },
       { name: "theme-color", content: "#0A1F44" },
       { property: "og:title", content: "FACTSHIELD AI" },
       { property: "og:description", content: "Verify suspicious messages, screenshots and links before you share them." },

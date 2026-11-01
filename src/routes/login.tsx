@@ -19,6 +19,7 @@ import { seo } from "@/lib/seo";
 import { errText } from "@/lib/errText";
 
 export const Route = createFileRoute("/login")({
+  staticData: { sitemap: false },
   head: () => seo("Login", "Log in to FACTSHIELD AI to save and revisit your verification reports."),
   component: LoginPage,
 });

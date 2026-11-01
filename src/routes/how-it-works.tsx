@@ -6,6 +6,7 @@ import { useTranslation } from "@/context/LanguageContext";
 import { seo } from "@/lib/seo";
 
 export const Route = createFileRoute("/how-it-works")({
+  staticData: { sitemap: true },
   head: () => seo("How It Works", "Four simple steps: upload content, extract text and detect language, compare evidence, get a clear report."),
   component: HowPage,
 });

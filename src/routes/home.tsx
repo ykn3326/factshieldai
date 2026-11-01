@@ -9,6 +9,7 @@ import { useTranslation } from "@/context/LanguageContext";
 import { seo } from "@/lib/seo";
 
 export const Route = createFileRoute("/home")({
+  staticData: { sitemap: true },
   head: () => seo("Home", "Don't believe everything you see. Verify suspicious WhatsApp messages, screenshots and links before you share."),
   component: HomePage,
 });
