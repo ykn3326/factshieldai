@@ -3,7 +3,6 @@ import { ArrowLeft } from "lucide-react";
 import type { ReactNode } from "react";
 import { Logo } from "@/components/layout/Logo";
 import { LanguageSelector } from "@/components/layout/LanguageSelector";
-import { PrototypeBadge } from "@/components/layout/Banners";
 import { useTranslation } from "@/context/LanguageContext";
 
 export function AuthShell({ title, sub, children }: { title: string; sub: string; children: ReactNode }) {
@@ -21,7 +20,6 @@ export function AuthShell({ title, sub, children }: { title: string; sub: string
       <main id="main" className="relative mx-auto flex max-w-md flex-col px-4 pb-16 pt-4 animate-fade-up">
         <div className="mb-6 flex flex-col items-center gap-3 text-center">
           <Logo />
-          <PrototypeBadge />
         </div>
         <div className="rounded-3xl border border-border bg-card p-6 shadow-elevated sm:p-8">
           <h1 className="text-2xl font-extrabold tracking-tight text-navy">{title}</h1>

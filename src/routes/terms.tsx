@@ -4,7 +4,7 @@ import { useTranslation } from "@/context/LanguageContext";
 import { seo } from "@/lib/seo";
 
 export const Route = createFileRoute("/terms")({
-  head: () => seo("Terms and Conditions", "Terms for using the FACTSHIELD AI prototype, including that results are AI-assisted and may contain errors."),
+  head: () => seo("Terms and Conditions", "Terms for using FACTSHIELD AI, including that results are AI-assisted and may contain errors."),
   component: () => {
     const { t } = useTranslation();
     return <LegalPage title={t.legal.termsTitle} intro={t.legal.termsIntro} note={t.legal.note} sections={t.legal.terms} />;

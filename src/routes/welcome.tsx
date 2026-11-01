@@ -4,7 +4,6 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Logo, ShieldMark } from "@/components/layout/Logo";
 import { LanguagePills } from "@/components/layout/LanguageSelector";
-import { PrototypeBadge } from "@/components/layout/Banners";
 import { useTranslation } from "@/context/LanguageContext";
 import { useAuth } from "@/context/AuthContext";
 import { seo } from "@/lib/seo";
@@ -67,11 +66,9 @@ function Welcome() {
       {/* Actions */}
       <section className="flex flex-col bg-background px-6 py-8 sm:px-10 lg:p-14">
         <div className="hidden items-center justify-between lg:flex">
-          <PrototypeBadge />
           <LanguagePills value={lang} onChange={setLang} label={t.common.language} />
         </div>
         <main id="main" className="mx-auto flex w-full max-w-md flex-1 flex-col justify-center animate-fade-up">
-          <PrototypeBadge className="mb-4 w-fit lg:hidden" />
           <h2 className="text-2xl font-extrabold tracking-tight text-navy sm:text-3xl">{t.welcome.choose}</h2>
           <p className="mt-2 text-muted-foreground">{t.welcome.noForce}</p>
 

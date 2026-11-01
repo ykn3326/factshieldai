@@ -278,7 +278,7 @@ function HistoryList({ history, onDelete, onClear, simple }: { history: Verifica
                     <span>{df.format(new Date(r.createdAt))}</span>
                     <span>·</span>
                     <span>{t.langNames[r.contentLanguage]}</span>
-                    {r.isDemo && <span className="rounded bg-muted px-1.5 py-0.5 font-semibold">{t.common.demo}</span>}
+                    {r.isDemo && <span className="rounded bg-muted px-1.5 py-0.5 font-semibold">{t.common.sample}</span>}
                   </div>
                   <p className="mt-1.5 truncate text-sm font-medium text-navy">{r.request.text ?? r.request.url ?? r.request.fileName}</p>
                 </div>

@@ -16,7 +16,6 @@ import { useAuth } from "@/context/AuthContext";
 import { useTranslation } from "@/context/LanguageContext";
 import { Logo } from "./Logo";
 import { LanguagePills, LanguageSelector } from "./LanguageSelector";
-import { PrototypeBadge } from "./Banners";
 
 export function useNavLinks() {
   const { t } = useTranslation();
@@ -52,7 +51,6 @@ export function Navbar() {
         <Link to="/home" aria-label="FACTSHIELD AI — Home" className="shrink-0 rounded-lg">
           <Logo />
         </Link>
-        <PrototypeBadge short className="hidden md:inline-flex 2xl:hidden" />
         <nav aria-label="Main" className="ml-2 hidden items-center gap-0.5 xl:flex">
           {links.map((l) => (
             <Link
@@ -66,7 +64,6 @@ export function Navbar() {
           ))}
         </nav>
         <div className="ml-auto flex items-center gap-1.5">
-          <PrototypeBadge className="hidden 2xl:inline-flex" />
           <LanguageSelector className="hidden sm:inline-flex" />
           {isRegistered && user ? (
             <DropdownMenu>
@@ -115,7 +112,6 @@ export function Navbar() {
             <SheetContent side="right" className="flex w-[88vw] max-w-sm flex-col gap-0 overflow-y-auto p-0">
               <SheetHeader className="border-b border-border p-5 text-left">
                 <SheetTitle><Logo /></SheetTitle>
-                <PrototypeBadge className="mt-2 w-fit" />
               </SheetHeader>
               <nav aria-label="Mobile" className="flex flex-col gap-1 p-4">
                 {links.map((l) => (
