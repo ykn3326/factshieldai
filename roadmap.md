@@ -5,3 +5,4 @@
 - [ ] Implement secure live input, evidence retrieval and AI comparison.
 - [ ] Preserve trilingual reports, guest access and honest demo history labels.
 - [ ] Run rules tests and real guest verification, image/link and failure checks.
+- [ ] Finish production-quality verification checks and resolve remaining failures from the latest request.
