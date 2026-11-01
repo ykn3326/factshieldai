@@ -5,6 +5,7 @@ import { ShieldMark } from "@/components/layout/Logo";
 import { seo } from "@/lib/seo";
 
 export const Route = createFileRoute("/")({
+  staticData: { sitemap: false },
   head: () => seo("Verify the Truth Before You Believe It", "FACTSHIELD AI helps you check suspicious messages, screenshots and links in English, Hindi and Punjabi."),
   component: Index,
 });

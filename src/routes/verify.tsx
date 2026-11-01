@@ -5,6 +5,7 @@ import { useTranslation } from "@/context/LanguageContext";
 import { seo } from "@/lib/seo";
 
 export const Route = createFileRoute("/verify")({
+  staticData: { sitemap: true },
   head: () => seo("Verify Content", "Paste text, upload a screenshot or share a public link to check it with FACTSHIELD AI."),
   component: VerifyPage,
 });

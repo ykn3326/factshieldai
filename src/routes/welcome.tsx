@@ -9,6 +9,7 @@ import { useAuth } from "@/context/AuthContext";
 import { seo } from "@/lib/seo";
 
 export const Route = createFileRoute("/welcome")({
+  staticData: { sitemap: true },
   head: () => seo("Welcome", "Log in, sign up or continue as a guest to verify suspicious content with FACTSHIELD AI."),
   component: Welcome,
 });

@@ -6,6 +6,7 @@ import { useTranslation } from "@/context/LanguageContext";
 import { seo } from "@/lib/seo";
 
 export const Route = createFileRoute("/about")({
+  staticData: { sitemap: true },
   head: () => seo("About Us", "FACTSHIELD AI by Team IGNITE — making digital information safer, smarter and accessible for everyone."),
   component: AboutPage,
 });
