@@ -9,8 +9,8 @@ export interface VerificationRequest {
   type: InputType;
   text?: string;
   imageDataUrl?: string;
-  fileName?: string;
-  fileSize?: number;
+  fileName?: string | undefined;
+  fileSize?: number | undefined;
   url?: string;
   reportLang: Lang;
 }
@@ -39,9 +39,9 @@ export interface SourceLink {
   url: string;
   id?: string;
   summary?: Localized;
-  publishedAt?: string;
+  publishedAt?: string | undefined;
   retrievedAt?: string;
-  cachedAt?: string;
+  cachedAt?: string | undefined;
 }
 
 export interface VerificationReport {

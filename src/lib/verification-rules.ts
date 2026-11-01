@@ -30,9 +30,9 @@ export interface RetrievedDocument {
   title: string;
   text: string;
   snippet: string;
-  publishedAt?: string;
+  publishedAt?: string | undefined;
   retrievedAt: string;
-  cachedAt?: string;
+  cachedAt?: string | undefined;
   type: SourceLink["type"];
 }
 

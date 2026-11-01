@@ -30,8 +30,8 @@ async function persistBlock(status: number, message: string) {
 function safeMessage(body: string): string {
   try {
     const parsed = object(JSON.parse(body));
-    const err = object(parsed.error);
-    return (str(parsed.message) || str(err.message)).slice(0, 1200);
+    const err = object(parsed["error"]);
+    return (str(parsed["message"]) || str(err["message"])).slice(0, 1200);
   } catch { return ""; }
 }
 
@@ -50,30 +50,30 @@ async function firecrawl(path: string, body: JsonObject, signal: AbortSignal): P
     throw new VerificationError(response.status, "searchFailed", message);
   }
   const result = object(await response.json());
-  if (result.success === false) throw new VerificationError(502, "searchFailed", str(result.error));
+  if (result["success"] === false) throw new VerificationError(502, "searchFailed", str(result["error"]));
   return result;
 }
 
 function publicationDate(metadata: JsonObject, source: JsonObject): string | undefined {
   // Never confuse a scrape/cache timestamp or a date in a claim with publication metadata.
-  const value = str(metadata["article:published_time"]) || str(metadata.publishedTime) || str(metadata.datePublished) || str(source.publishedDate);
+  const value = str(metadata["article:published_time"]) || str(metadata["publishedTime"]) || str(metadata["datePublished"]) || str(source["publishedDate"]);
   return value && !Number.isNaN(Date.parse(value)) ? value : undefined;
 }
 function toDocument(value: unknown, index: number): RetrievedDocument | null {
   const item = object(value);
-  const metadata = object(item.metadata);
-  const url = str(item.url) || str(metadata.sourceURL);
+  const metadata = object(item["metadata"]);
+  const url = str(item["url"]) || str(metadata["sourceURL"]);
   if (!isPublicUrl(url)) return null;
-  const status = metadata.statusCode;
+  const status = metadata["statusCode"];
   if (typeof status === "number" && (status < 200 || status >= 300)) return null;
   return {
     id: `S${index + 1}`, url,
-    title: str(item.title).trim() || str(metadata.title).trim() || new URL(url).hostname,
-    text: str(item.markdown).slice(0, 18_000),
-    snippet: str(item.description).slice(0, 1500),
-    publishedAt: publicationDate(metadata, item),
+    title: str(item["title"]).trim() || str(metadata["title"]).trim() || new URL(url).hostname,
+    text: str(item["markdown"]).slice(0, 18_000),
+    snippet: str(item["description"]).slice(0, 1500),
+    ...(publicationDate(metadata, item) ? { publishedAt: publicationDate(metadata, item) } : {}),
     retrievedAt: new Date().toISOString(),
-    cachedAt: str(metadata.cachedAt) || undefined,
+    ...(str(metadata["cachedAt"]) ? { cachedAt: str(metadata["cachedAt"]) } : {}),
     type: sourceType(url),
   };
 }
@@ -91,7 +91,8 @@ export async function handleVerification(request: Request): Promise<Response> {
   try {
     const raw = await request.text();
     if (raw.length > 14_100_000) return errorResponse(new VerificationError(413, "invalidInput"));
-    input = verificationRequestSchema.parse(JSON.parse(raw));
+    const parsed = verificationRequestSchema.parse(JSON.parse(raw));
+    input = { ...parsed, ...(parsed.type === "image" ? { fileName: parsed.fileName, fileSize: parsed.fileSize } : {}) };
   } catch { return errorResponse(new VerificationError(400, "invalidInput")); }
   try { await readBlock(); } catch (e) { return errorResponse(e instanceof VerificationError ? e : new VerificationError(503, "configuration")); }
   const key = process.env["LOVABLE_API_KEY"];
@@ -146,10 +147,10 @@ export async function handleVerification(request: Request): Promise<Response> {
           if (input.type === "link") {
             step("ocr", "progress");
             const scraped = await firecrawl("scrape", { url: input.url, formats: ["markdown"], onlyMainContent: true, maxAge: 0 }, abort.signal);
-            const page = object(scraped.data ?? scraped);
-            const metadata = object(page.metadata);
-            if (typeof metadata.statusCode === "number" && metadata.statusCode >= 400) throw new VerificationError(422, "unreadableContent");
-            text = str(page.markdown).slice(0, 20_000);
+            const page = object(scraped["data"] ?? scraped);
+            const metadata = object(page["metadata"]);
+            if (typeof metadata["statusCode"] === "number" && metadata["statusCode"] >= 400) throw new VerificationError(422, "unreadableContent");
+            text = str(page["markdown"]).slice(0, 20_000);
             if (text.trim().length < 20) throw new VerificationError(422, "unreadableContent");
             step("ocr", "done");
           } else if (input.type === "image") step("ocr", "progress");
@@ -173,8 +174,8 @@ export async function handleVerification(request: Request): Promise<Response> {
           // Sequential requests respect the workspace's shared search budget.
           for (const query of queries) {
             const search = await firecrawl("search", { query, limit: 4, scrapeOptions: { formats: ["markdown"], onlyMainContent: true, maxAge: 0 } }, abort.signal);
-            const data = search.data;
-            const web = Array.isArray(data) ? data : object(data).web;
+            const data = search["data"];
+            const web = Array.isArray(data) ? data : object(data)["web"];
             if (!Array.isArray(web)) throw new VerificationError(502, "searchFailed");
             for (const item of web) {
               const doc = toDocument(item, documents.length);
