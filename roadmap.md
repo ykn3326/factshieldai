@@ -15,4 +15,4 @@
 # Google Search Console setup
 - [x] Check existing linked account and request its verification tag.
 - [x] Add root verification metadata and a public-only router-derived sitemap.
-- [ ] Publish with approval, verify ownership, add the property and submit the live sitemap.
+- [x] Publish with approval, verify ownership, add the property and submit the live sitemap.
