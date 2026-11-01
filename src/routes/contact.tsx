@@ -17,7 +17,7 @@ import { seo } from "@/lib/seo";
 
 export const Route = createFileRoute("/contact")({
   staticData: { sitemap: true },
-  head: () => seo("Contact Us", "Send Team IGNITE a question, feedback or partnership idea about FACTSHIELD AI."),
+  head: () => seo("Contact Team IGNITE — Contact Availability", "Check contact availability for FACTSHIELD AI by Team IGNITE and find answers to common questions; message delivery is currently unavailable."),
   component: ContactPage,
 });
 
