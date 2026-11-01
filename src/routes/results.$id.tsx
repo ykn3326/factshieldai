@@ -29,7 +29,6 @@ import { useTranslation } from "@/context/LanguageContext";
 import { useVerification } from "@/context/VerificationContext";
 import { reportService } from "@/services/reportService";
 import { dictionaries, LOCALES } from "@/i18n";
-import { USE_MOCK_DATA } from "@/lib/config";
 import { seo } from "@/lib/seo";
 import { cn } from "@/lib/utils";
 import type { Lang, VerificationReport } from "@/types";
@@ -109,6 +108,8 @@ function ResultsPage() {
       `${rt.report.statusTitle}: ${status.label} — ${status.def}`,
       `"${content.slice(0, 160)}${content.length > 160 ? "…" : ""}"`,
       report.explanation[reportLang],
+      ...(report.sources.length ? report.sources.map((s) => `${s.title[reportLang]} — ${s.url}`) : []),
+      ...(report.limitations ? [report.limitations[reportLang]] : []),
       `${rt.report.reportId}: ${report.id}`,
       rt.common.disclaimer,
       rt.report.shareReminder,
@@ -129,7 +130,7 @@ function ResultsPage() {
   return (
     <SiteLayout>
       <div lang={reportLang} className="mx-auto max-w-5xl px-4 py-10 sm:px-6 md:py-14">
-        <DemoBanner text={rt.common.demoBanner} className="no-print" />
+        <DemoBanner text={rt.common.demoBanner} className="no-print" show={report.isDemo} />
 
         <div className="mt-8 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div>
@@ -144,7 +145,7 @@ function ResultsPage() {
 
         {/* Status hero */}
         <section className={cn("print-card relative mt-6 overflow-hidden rounded-3xl border-2 p-6 shadow-elevated sm:p-8", meta.border, meta.soft)} aria-labelledby="status-h">
-          {report.isDemo && USE_MOCK_DATA && (
+          {report.isDemo && (
             <span className="absolute right-4 top-4 rounded-full border border-unverified/30 bg-card px-2.5 py-1 text-xs font-bold text-unverified">{rt.report.demoResult}</span>
           )}
           <div className="flex flex-col gap-5 sm:flex-row sm:items-center">
@@ -185,28 +186,43 @@ function ResultsPage() {
                     <div>
                       <p className="font-bold text-navy">{e.title[reportLang]}</p>
                       <p className="text-sm text-muted-foreground">{e.description[reportLang]}</p>
+                       {e.quotes?.map((q, qi) => <blockquote key={qi} className="mt-2 border-l-2 border-primary pl-3 text-sm text-navy">“{q.text}” <span className="font-mono text-primary">[{q.sourceId}]</span></blockquote>)}
+                       <div className="mt-2 flex flex-wrap gap-3">{e.sourceIds?.map((sid) => {
+                         const source = report.sources.find((s) => s.id === sid);
+                         return source ? <a key={sid} href={source.url} target="_blank" rel="noopener noreferrer" className="text-sm font-semibold text-primary hover:underline">[{sid}] {source.name}</a> : null;
+                       })}</div>
                     </div>
                   </li>
                 ))}
               </ul>
             </Card>
-            <Card icon={Link2} title={rt.report.sources} badge={USE_MOCK_DATA ? rt.report.demoSources : undefined}>
+            <Card icon={Link2} title={rt.report.sources} badge={report.isDemo ? rt.report.demoSources : undefined}>
+              {!report.sources.length && <p className="text-sm text-muted-foreground">{rt.report.noSources}</p>}
               <ul className="grid gap-3 sm:grid-cols-2">
                 {report.sources.map((s) => (
-                  <li key={s.url}>
+                  <li key={s.url} id={s.id}>
                     <a href={s.url} target="_blank" rel="noopener noreferrer" className="group flex h-full flex-col rounded-2xl border border-border p-4 transition-all hover:border-primary hover:shadow-card">
                       <span className="w-fit rounded-full bg-verified-soft px-2 py-0.5 text-xs font-bold text-verified">{rt.report.sourceTypes[s.type]}</span>
-                      <span className="mt-2 font-bold text-navy">{s.name}</span>
+                      <span className="mt-2 font-bold text-navy">{s.id && `[${s.id}] `}{s.name}</span>
                       <span className="text-sm text-muted-foreground">{s.title[reportLang]}</span>
+                      {s.summary && <span className="mt-2 text-sm text-navy">{s.summary[reportLang]}</span>}
+                      <span className="mt-2 break-all text-xs text-primary">{s.url}</span>
+                      {!report.isDemo && <span className="mt-2 text-xs text-muted-foreground">{s.publishedAt ? `${rt.report.publishedAt}: ${new Intl.DateTimeFormat(LOCALES[reportLang], { dateStyle: "medium" }).format(new Date(s.publishedAt))}` : rt.report.dateUnknown}</span>}
+                      {s.retrievedAt && <span className="mt-1 text-xs text-muted-foreground">{rt.report.retrievedAt}: {new Intl.DateTimeFormat(LOCALES[reportLang], { dateStyle: "medium" }).format(new Date(s.retrievedAt))}</span>}
+                      {s.cachedAt && <span className="mt-1 text-xs text-muted-foreground">{rt.report.cachedAt}: {new Intl.DateTimeFormat(LOCALES[reportLang], { dateStyle: "medium" }).format(new Date(s.cachedAt))}</span>}
                       <span className="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-primary">
                         {rt.report.open} <ExternalLink className="h-3.5 w-3.5" aria-hidden />
-                        <span className="sr-only">(opens in new tab)</span>
+                        <span className="sr-only">{rt.report.newTab}</span>
                       </span>
                     </a>
                   </li>
                 ))}
               </ul>
             </Card>
+            {report.limitations && <Card icon={FileQuestion} title={rt.report.limitations}>
+              <p className="text-sm leading-relaxed text-navy">{report.limitations[reportLang]}</p>
+              {report.searchQueries && <><h3 className="mt-4 text-sm font-bold text-navy">{rt.report.queries}</h3><ul className="mt-2 space-y-2">{report.searchQueries.map((q) => <li key={q} className="break-words text-sm text-muted-foreground">{q}</li>)}</ul></>}
+            </Card>}
           </div>
 
           <aside className="space-y-6">
@@ -223,6 +239,7 @@ function ResultsPage() {
               </dl>
             </Card>
             <Disclaimer text={rt.common.disclaimer} />
+            <p className="no-print text-xs text-muted-foreground">{rt.report.accountDemo}</p>
           </aside>
         </div>
       </div>
@@ -237,6 +254,7 @@ function ResultsPage() {
             <Button asChild size="lg"><Link to="/signup">{t.common.signup}</Link></Button>
             <Button asChild size="lg" variant="outline"><Link to="/login">{t.common.login}</Link></Button>
           </div>
+          <p className="text-sm text-muted-foreground">{rt.report.accountDemo}</p>
         </DialogContent>
       </Dialog>
     </SiteLayout>
@@ -278,7 +296,7 @@ function SubmittedContent({ report, rt }: { report: VerificationReport; rt: (typ
   if (r.type === "image") {
     return (
       <div className="space-y-4">
-        {r.imageDataUrl && <img src={r.imageDataUrl} alt={r.fileName ?? "Submitted screenshot"} className="max-h-80 rounded-2xl border border-border object-contain" />}
+          {r.imageDataUrl && <img src={r.imageDataUrl} alt={r.fileName ?? rt.report.submitted} className="max-h-80 rounded-2xl border border-border object-contain" />}
         <p className="text-sm text-muted-foreground">{r.fileName}</p>
         {report.extractedText && (
           <div className="rounded-2xl bg-surface p-4">
@@ -300,10 +318,10 @@ function SubmittedContent({ report, rt }: { report: VerificationReport; rt: (typ
         {text}
       </blockquote>
       {long && (
-        <button onClick={() => setOpen((o) => !o)} className="mt-2 inline-flex min-h-10 items-center gap-1 text-sm font-semibold text-primary" aria-expanded={open}>
+        <Button variant="ghost" onClick={() => setOpen((o) => !o)} className="mt-2 inline-flex min-h-10 items-center gap-1 text-sm font-semibold text-primary" aria-expanded={open}>
           {open ? rt.report.showLess : rt.report.showMore}
           <ChevronDown className={cn("h-4 w-4 transition-transform", open && "rotate-180")} />
-        </button>
+        </Button>
       )}
     </div>
   );

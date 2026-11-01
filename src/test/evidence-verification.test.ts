@@ -1,0 +1,27 @@
+import { describe, expect, it, vi, afterEach } from "vitest";
+import { isPublicUrl, publicationDate, rankDocuments, sourceType, validateComparison, type Comparison, type RetrievedDocument } from "@/lib/verification-rules";
+import { verificationService } from "@/services/verificationService";
+import { retrieveWithBackoff } from "@/lib/retrieval-retry";
+
+const loc = (s: string) => ({ en: s, hi: s, pa: s });
+const text = "Chandrayaan-3 successfully landed on the Moon on 23 August 2023.";
+const doc: RetrievedDocument = { id: "S1", title: "Mission record", url: "https://www.isro.gov.in/mission.html", text, snippet: "", retrievedAt: "2026-11-01", type: "research" };
+const valid = (): Comparison => ({ status: "verified", explanation: loc("The mission record supports this claim."), limitations: loc("This search covers a limited selection of web pages, not the entire web."), sources: [{ id: "S1", summary: loc(text) }], evidence: [{ title: loc("Mission"), description: loc(text), claimIndex: 0, sourceIds: ["S1"], relation: "supports", quotes: [{ sourceId: "S1", text }] }] });
+afterEach(() => { vi.unstubAllGlobals(); vi.useRealTimers(); });
+describe("Live evidence verdict rules", () => {
+  it("Verified requires an actual supporting quotation", () => { expect(validateComparison(valid(), [doc], 1)).toBe("verified"); const r = valid(); if (r.evidence[0]) r.evidence[0].quotes = []; expect(() => validateComparison(r, [doc], 1)).toThrow(); });
+  it("Misleading requires contradictory evidence, not missing sources", () => { const r = valid(); r.status = "misleading"; expect(() => validateComparison(r, [doc], 1)).toThrow(); if (r.evidence[0]) r.evidence[0].relation = "contradicts"; expect(validateComparison(r, [doc], 1)).toBe("misleading"); });
+  it("No usable sources requires Needs Review", () => { const r = valid(); r.sources = []; r.evidence = []; r.status = "unverified"; expect(() => validateComparison(r, [], 1)).toThrow(); r.status = "review"; expect(validateComparison(r, [], 1)).toBe("review"); });
+  it("Unverified must explain search limitations in every language", () => { const r = valid(); r.status = "unverified"; r.limitations.hi = ""; expect(() => validateComparison(r, [doc], 1)).toThrow(); });
+  it("Rejects invented source IDs", () => { const r = valid(); if (r.sources[0]) r.sources[0].id = "invented"; expect(() => validateComparison(r, [doc], 1)).toThrow(); });
+  it("Rejects quotations not present in retrieved content", () => { const r = valid(); if (r.evidence[0]?.quotes[0]) r.evidence[0].quotes[0].text = "This fabricated sentence is not in the record."; expect(() => validateComparison(r, [doc], 1)).toThrow(); });
+  it("Search snippets alone cannot verify a claim", () => { expect(() => validateComparison(valid(), [{ ...doc, text: "", snippet: text }], 1)).toThrow(); });
+  it("Every central claim must be supported for Verified", () => { expect(() => validateComparison(valid(), [doc], 2)).toThrow(); });
+  it("Prioritises official, research and fact-check sources over general pages", () => { const general = { ...doc, id: "S2", type: "other" as const }; expect(rankDocuments([general, doc])[0]?.id).toBe("S1"); expect(sourceType("https://pib.gov.in/release")).toBe("official"); expect(sourceType("https://www.fullfact.org/check")).toBe("factcheck"); });
+  it("Rejects local/private URLs and credential-bearing links", () => { for (const u of ["http://127.0.0.1", "http://169.254.169.254", "https://[::1]", "https://x.local", "https://user:pass@isro.gov.in"]) expect(isPublicUrl(u)).toBe(false); expect(isPublicUrl(doc.url)).toBe(true); });
+  it("Search API failure never returns a sample report", async () => { vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response(JSON.stringify({ code: "searchFailed", message: "Evidence search failed" }), { status: 503 }))); const job = await verificationService.submitText(text, "en"); await expect(verificationService.run(job, { signal: new AbortController().signal, onStep: vi.fn(), onLanguage: vi.fn() })).rejects.toMatchObject({ code: "searchFailed", status: 503 }); });
+  it("429 search recovery waits for Retry-After rather than retrying immediately", async () => { vi.useFakeTimers(); const call = vi.fn().mockResolvedValueOnce(new Response("slow down", { status: 429, headers: { "Retry-After": "5" } })).mockResolvedValue(new Response("ok")); const pending = retrieveWithBackoff(call, new AbortController().signal); await vi.advanceTimersByTimeAsync(4999); expect(call).toHaveBeenCalledTimes(1); await vi.advanceTimersByTimeAsync(1); expect((await pending).status).toBe(200); expect(call).toHaveBeenCalledTimes(2); });
+  it("Search access denials are terminal and never retried", async () => { const call = vi.fn().mockResolvedValue(new Response("denied", { status: 403 })); expect((await retrieveWithBackoff(call, new AbortController().signal)).status).toBe(403); expect(call).toHaveBeenCalledTimes(1); });
+  it("Publication dates preserve source metadata and never use retrieval time", () => { expect(publicationDate({ datePublished: "2023-08-23" }, {})).toBe("2023-08-23"); expect(publicationDate({ cachedAt: "2026-11-01", retrievedAt: "2026-11-01" }, {})).toBeUndefined(); expect(publicationDate({ datePublished: "invalid" }, {})).toBeUndefined(); });
+  it("Submitted articles cannot verify themselves without independent evidence", () => { expect(() => validateComparison(valid(), [doc], 1, doc.url)).toThrow(); expect(validateComparison(valid(), [doc], 1, "https://another.org/article")).toBe("verified"); });
+});
