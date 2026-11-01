@@ -243,7 +243,7 @@ function ResultsPage() {
   );
 }
 
-function Card({ title, icon: Icon, badge, children }: { title: string; icon?: typeof Link2; badge?: string; children: React.ReactNode }) {
+function Card({ title, icon: Icon, badge, children }: { title: string; icon?: typeof Link2; badge?: string | undefined; children: React.ReactNode }) {
   return (
     <section className="print-card rounded-3xl border border-border bg-card p-5 shadow-card sm:p-6">
       <div className="mb-4 flex items-center gap-2.5">

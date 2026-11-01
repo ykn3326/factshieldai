@@ -40,7 +40,7 @@ export interface VerificationReport {
   id: string;
   status: VerificationStatus;
   request: VerificationRequest;
-  extractedText?: string;
+  extractedText?: string | undefined;
   explanation: Localized;
   evidence: EvidenceItem[];
   sources: SourceLink[];

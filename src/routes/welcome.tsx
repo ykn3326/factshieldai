@@ -101,7 +101,7 @@ function Welcome() {
 
           <ul className="mt-10 grid grid-cols-3 gap-2">
             {t.welcome.trust.map((label, i) => {
-              const Icon = trustIcons[i];
+              const Icon = trustIcons[i]!;
               return (
                 <li key={label} className="flex flex-col items-center gap-2 rounded-2xl border border-border bg-card p-3 text-center text-xs font-semibold text-navy">
                   <Icon className="h-5 w-5 text-primary" aria-hidden />

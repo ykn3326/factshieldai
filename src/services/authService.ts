@@ -14,7 +14,7 @@ export const authService = {
     const prev = authService.load();
     const user: User = {
       id: idFor(contact),
-      name: prev?.contact === contact ? prev.name : contact.split("@")[0],
+      name: prev?.contact === contact ? prev.name : (contact.split("@")[0] ?? contact),
       contact,
       prefLang: prev?.prefLang ?? "en",
       mode: "registered",
