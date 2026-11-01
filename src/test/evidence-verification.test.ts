@@ -1,5 +1,5 @@
 import { describe, expect, it, vi, afterEach } from "vitest";
-import { isPublicUrl, rankDocuments, sourceType, validateComparison, type Comparison, type RetrievedDocument } from "@/lib/verification-rules";
+import { isPublicUrl, publicationDate, rankDocuments, sourceType, validateComparison, type Comparison, type RetrievedDocument } from "@/lib/verification-rules";
 import { verificationService } from "@/services/verificationService";
 import { retrieveWithBackoff } from "@/lib/retrieval-retry";
 
@@ -22,4 +22,6 @@ describe("Live evidence verdict rules", () => {
   it("Search API failure never returns a sample report", async () => { vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response(JSON.stringify({ code: "searchFailed", message: "Evidence search failed" }), { status: 503 }))); const job = await verificationService.submitText(text, "en"); await expect(verificationService.run(job, { signal: new AbortController().signal, onStep: vi.fn(), onLanguage: vi.fn() })).rejects.toMatchObject({ code: "searchFailed", status: 503 }); });
   it("429 search recovery waits for Retry-After rather than retrying immediately", async () => { vi.useFakeTimers(); const call = vi.fn().mockResolvedValueOnce(new Response("slow down", { status: 429, headers: { "Retry-After": "5" } })).mockResolvedValue(new Response("ok")); const pending = retrieveWithBackoff(call, new AbortController().signal); await vi.advanceTimersByTimeAsync(4999); expect(call).toHaveBeenCalledTimes(1); await vi.advanceTimersByTimeAsync(1); expect((await pending).status).toBe(200); expect(call).toHaveBeenCalledTimes(2); });
   it("Search access denials are terminal and never retried", async () => { const call = vi.fn().mockResolvedValue(new Response("denied", { status: 403 })); expect((await retrieveWithBackoff(call, new AbortController().signal)).status).toBe(403); expect(call).toHaveBeenCalledTimes(1); });
+  it("Publication dates preserve source metadata and never use retrieval time", () => { expect(publicationDate({ datePublished: "2023-08-23" }, {})).toBe("2023-08-23"); expect(publicationDate({ cachedAt: "2026-11-01", retrievedAt: "2026-11-01" }, {})).toBeUndefined(); expect(publicationDate({ datePublished: "invalid" }, {})).toBeUndefined(); });
+  it("Submitted articles cannot verify themselves without independent evidence", () => { expect(() => validateComparison(valid(), [doc], 1, doc.url)).toThrow(); expect(validateComparison(valid(), [doc], 1, "https://another.org/article")).toBe("verified"); });
 });

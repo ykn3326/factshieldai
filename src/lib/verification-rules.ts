@@ -36,6 +36,14 @@ export interface RetrievedDocument {
   type: SourceLink["type"];
 }
 
+/** Publication timestamps only: never substitute retrieval/cache times or dates from claims. */
+export function publicationDate(metadata: Record<string, unknown>, source: Record<string, unknown>): string | undefined {
+  for (const value of [metadata["article:published_time"], metadata["publishedTime"], metadata["datePublished"], source["publishedDate"]]) {
+    if (typeof value === "string" && value.trim() && !Number.isNaN(Date.parse(value))) return value;
+  }
+  return undefined;
+}
+
 export function isPublicUrl(value: string): boolean {
   try {
     const url = new URL(value);
@@ -69,7 +77,7 @@ export function rankDocuments(documents: RetrievedDocument[]): RetrievedDocument
 
 const normal = (s: string) => s.replace(/\s+/g, " ").trim().toLowerCase();
 /** A decisive verdict needs claim-bound quotes from the actual retrieved page, not search snippets. */
-export function validateComparison(result: Comparison, documents: RetrievedDocument[], claimCount: number): VerificationStatus {
+export function validateComparison(result: Comparison, documents: RetrievedDocument[], claimCount: number, submittedUrl?: string): VerificationStatus {
   const byId = new Map(documents.map((s) => [s.id, s]));
   const shown = new Set(result.sources.map((s) => s.id));
   for (const source of result.sources) {
@@ -84,12 +92,13 @@ export function validateComparison(result: Comparison, documents: RetrievedDocum
     }
     if (["supports", "contradicts"].includes(evidence.relation) && !evidence.quotes.length) throw new Error("invalidEvidence");
   }
-  const has = (index: number, relation: string) => result.evidence.some((e) => e.claimIndex === index && e.relation === relation && e.quotes.length > 0 && e.sourceIds.length > 0);
+  const independent = (id: string) => !submittedUrl || byId.get(id)?.url.replace(/\/$/, "") !== submittedUrl.replace(/\/$/, "");
+  const has = (index: number, relation: string) => result.evidence.some((e) => e.claimIndex === index && e.relation === relation && e.quotes.some((q) => independent(q.sourceId)) && e.sourceIds.length > 0);
   if (!documents.some((s) => s.text.trim()) || result.sources.length === 0) {
     if (result.status !== "review") throw new Error("invalidEvidence");
   }
   if (result.status === "verified" && (claimCount === 0 || !Array.from({ length: claimCount }, (_, i) => i).every((i) => has(i, "supports") && !has(i, "contradicts")))) throw new Error("invalidEvidence");
-  if (result.status === "misleading" && !result.evidence.some((e) => e.relation === "contradicts" && e.quotes.length > 0)) throw new Error("invalidEvidence");
+  if (result.status === "misleading" && !result.evidence.some((e) => e.relation === "contradicts" && e.quotes.some((q) => independent(q.sourceId)))) throw new Error("invalidEvidence");
   if (["unverified", "review"].includes(result.status) && Object.values(result.limitations).some((s) => s.trim().length < 20)) throw new Error("invalidEvidence");
   return result.status;
 }
