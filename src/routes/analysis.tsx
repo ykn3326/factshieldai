@@ -21,11 +21,10 @@ import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { SiteLayout } from "@/components/layout/SiteLayout";
-import { DemoBanner } from "@/components/layout/Banners";
 import { useTranslation } from "@/context/LanguageContext";
 import { useVerification } from "@/context/VerificationContext";
 import { STEP_KEYS, verificationService } from "@/services/verificationService";
-import { USE_MOCK_DATA } from "@/lib/config";
+import { dictionaries } from "@/i18n";
 import { fmt } from "@/i18n";
 import { seo } from "@/lib/seo";
 import { cn } from "@/lib/utils";
@@ -46,6 +45,8 @@ function AnalysisPage() {
   const [steps, setSteps] = useState(initSteps);
   const [contentLang, setContentLang] = useState<ContentLang | null>(null);
   const [error, setError] = useState(false);
+  const [errorCode, setErrorCode] = useState<keyof typeof dictionaries.en.liveErrors>("analysisFailed");
+  const [errorDetail, setErrorDetail] = useState("");
   const [attempt, setAttempt] = useState(0);
   const ctrl = useRef<AbortController | null>(null);
 
@@ -55,6 +56,7 @@ function AnalysisPage() {
     ctrl.current = ac;
     setSteps(initSteps());
     setError(false);
+    setErrorDetail("");
     setContentLang(null);
     verificationService
       .run(job, {
@@ -74,6 +76,8 @@ function AnalysisPage() {
           return k ? { ...prev, [k]: "error" } : prev;
         });
         setError(true);
+        setErrorCode(e.code && e.code in dictionaries.en.liveErrors ? e.code : "interrupted");
+        setErrorDetail(e.detail ?? "");
       });
     return () => ac.abort();
   }, [ready, job, attempt, addReport, navigate]);
@@ -101,7 +105,6 @@ function AnalysisPage() {
   return (
     <SiteLayout>
       <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6 md:py-14">
-        <DemoBanner text={t.analysis.demoBanner} />
         <div className="mt-8 flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
           <div>
             <h1 className="text-3xl font-extrabold tracking-tight text-navy md:text-4xl">{t.analysis.title}</h1>
@@ -117,15 +120,16 @@ function AnalysisPage() {
         <div className="mt-8 grid gap-6 lg:grid-cols-[1fr_320px]">
           <section className="rounded-3xl border border-border bg-card p-5 shadow-card sm:p-7" aria-live="polite">
             <div className="flex items-center justify-between text-sm font-semibold">
-              <span className="text-navy">{t.analysis.progress}{USE_MOCK_DATA && <span className="ml-2 rounded-full bg-unverified-soft px-2 py-0.5 text-xs text-unverified">{t.analysis.simulated}</span>}</span>
+              <span className="text-navy">{t.analysis.progress}</span>
               <span className="tabular-nums text-primary">{pct}%</span>
             </div>
             <Progress value={pct} className="mt-3 h-2.5" />
             <ol className="mt-7 space-y-1">
               {visible.map((k, i) => {
                 const s = steps[k];
-                const Icon = ICONS[i]!;
-                const info = t.analysis.steps[i]!;
+                const Icon = ICONS[i];
+                const info = t.analysis.steps[i];
+                if (!Icon || !info) return null;
                 return (
                   <li key={k} className={cn("relative flex gap-4 rounded-2xl p-3 transition-colors duration-300", s === "progress" && "bg-surface")}>
                     {i < visible.length - 1 && <span className={cn("absolute left-[2.15rem] top-14 h-[calc(100%-2.5rem)] w-0.5", s === "done" ? "bg-verified/40" : "bg-border")} aria-hidden />}
@@ -162,7 +166,8 @@ function AnalysisPage() {
             {error && (
               <div role="alert" className="mt-6 rounded-2xl border border-misleading/30 bg-misleading-soft p-5">
                 <p className="flex items-center gap-2 font-bold text-misleading"><TriangleAlert className="h-5 w-5" /> {t.analysis.errorTitle}</p>
-                <p className="mt-1 text-sm text-navy">{t.analysis.errorDesc}</p>
+                <p className="mt-1 text-sm text-navy">{dictionaries[req.reportLang].liveErrors[errorCode]}</p>
+                {errorDetail && <p className="mt-2 break-words text-sm text-navy">{errorDetail}</p>}
                 <div className="mt-4 flex flex-wrap gap-2">
                   <Button onClick={() => setAttempt((a) => a + 1)}>{t.common.tryAgain}</Button>
                   <Button variant="outline" asChild><Link to="/verify">{t.common.goBack}</Link></Button>
