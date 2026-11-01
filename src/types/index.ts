@@ -27,13 +27,21 @@ export type StepKey = "received" | "ocr" | "language" | "claims" | "sources" | "
 export interface EvidenceItem {
   title: Localized;
   description: Localized;
+  sourceIds?: string[];
+  quotes?: { sourceId: string; text: string }[];
+  relation?: "supports" | "contradicts" | "context" | "insufficient";
 }
 
 export interface SourceLink {
   name: string;
   title: Localized;
-  type: "factcheck" | "official" | "news" | "health";
+  type: "factcheck" | "official" | "news" | "health" | "research" | "other";
   url: string;
+  id?: string;
+  summary?: Localized;
+  publishedAt?: string;
+  retrievedAt?: string;
+  cachedAt?: string;
 }
 
 export interface VerificationReport {
@@ -48,6 +56,9 @@ export interface VerificationReport {
   reportLanguage: Lang;
   createdAt: string;
   isDemo: boolean;
+  limitations?: Localized;
+  searchQueries?: string[];
+  analysedText?: string;
 }
 
 export interface User {
