@@ -1,4 +1,4 @@
-import { FlaskConical, Info, ShieldAlert } from "lucide-react";
+import { Info, ShieldAlert } from "lucide-react";
 import { USE_MOCK_DATA } from "@/lib/config";
 import { useTranslation } from "@/context/LanguageContext";
 import { cn } from "@/lib/utils";
@@ -14,7 +14,6 @@ export function PrototypeBadge({ className, short = false }: { className?: strin
         className,
       )}
     >
-      <FlaskConical className="h-3.5 w-3.5" aria-hidden />
       {short ? t.common.prototypeShort : t.common.prototype}
     </span>
   );
