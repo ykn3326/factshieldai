@@ -76,7 +76,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: "FACTSHIELD AI — Verify the Truth Before You Believe It" },
-      { name: "description", content: "AI-powered digital content verification in English, Hindi and Punjabi. Prototype by Team IGNITE." },
+      { name: "description", content: "AI-powered digital content verification in English, Hindi and Punjabi, by Team IGNITE." },
       { name: "author", content: "Team IGNITE" },
       { name: "theme-color", content: "#0A1F44" },
       { property: "og:title", content: "FACTSHIELD AI" },
