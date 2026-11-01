@@ -16,14 +16,13 @@ import { useTranslation } from "@/context/LanguageContext";
 import { USE_MOCK_DATA } from "@/lib/config";
 import { isEmailOrMobile, loginSchema } from "@/lib/validation";
 import { seo } from "@/lib/seo";
-import type { Dict } from "@/i18n";
+import { errText } from "@/lib/errText";
 
 export const Route = createFileRoute("/login")({
   head: () => seo("Login", "Log in to FACTSHIELD AI to save and revisit your verification reports."),
   component: LoginPage,
 });
 
-export const errText = (t: Dict, key?: string) => (key ? (t.errors[key as keyof Dict["errors"]] ?? key) : undefined);
 
 function LoginPage() {
   const { t, lang } = useTranslation();

@@ -16,7 +16,7 @@ import { useTranslation } from "@/context/LanguageContext";
 import { passwordStrength, signupSchema } from "@/lib/validation";
 import { seo } from "@/lib/seo";
 import { cn } from "@/lib/utils";
-import { errText } from "./login";
+import { errText } from "@/lib/errText";
 
 export const Route = createFileRoute("/signup")({
   head: () => seo("Sign Up", "Create a free FACTSHIELD AI account to save reports and set your preferred language."),
