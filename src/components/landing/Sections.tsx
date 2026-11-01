@@ -35,7 +35,7 @@ export function HowItWorksSteps({ showCta = true }: { showCta?: boolean }) {
         <span className="absolute left-7 top-4 bottom-4 w-0.5 bg-gradient-to-b from-primary/40 to-primary/5 lg:hidden" aria-hidden />
         <span className="absolute left-[12%] right-[12%] top-[52px] hidden h-0.5 bg-gradient-to-r from-primary/10 via-primary/50 to-primary/10 lg:block" aria-hidden />
         {t.how.steps.map((s, i) => {
-          const Icon = STEP_ICONS[i];
+          const Icon = STEP_ICONS[i]!;
           return (
             <li key={i} className="relative flex gap-4 lg:flex-col lg:items-center lg:text-center">
               <span className="relative z-10 flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-primary-gradient text-primary-foreground shadow-glow lg:mt-6">
@@ -71,7 +71,7 @@ export function FeaturesGrid() {
     <div>
       <ul className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
         {t.features.list.map((f, i) => {
-          const Icon = FEATURE_ICONS[i];
+          const Icon = FEATURE_ICONS[i]!;
           const preview = i === 2;
           return (
             <li key={i} className="group relative rounded-2xl border border-border bg-card p-6 shadow-card transition-all duration-200 hover:-translate-y-0.5 hover:shadow-elevated">

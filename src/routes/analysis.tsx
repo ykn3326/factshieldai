@@ -124,8 +124,8 @@ function AnalysisPage() {
             <ol className="mt-7 space-y-1">
               {visible.map((k, i) => {
                 const s = steps[k];
-                const Icon = ICONS[i];
-                const info = t.analysis.steps[i];
+                const Icon = ICONS[i]!;
+                const info = t.analysis.steps[i]!;
                 return (
                   <li key={k} className={cn("relative flex gap-4 rounded-2xl p-3 transition-colors duration-300", s === "progress" && "bg-surface")}>
                     {i < visible.length - 1 && <span className={cn("absolute left-[2.15rem] top-14 h-[calc(100%-2.5rem)] w-0.5", s === "done" ? "bg-verified/40" : "bg-border")} aria-hidden />}
