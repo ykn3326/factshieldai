@@ -31,6 +31,7 @@ describe("validation", () => {
   it("images limited to supported types and 10 MB", () => {
     expect(validateImageFile({ name: "a.png", type: "image/png", size: 1000 })).toBeNull();
     expect(validateImageFile({ name: "a.pdf", type: "application/pdf", size: 1000 })).toBe("fileType");
+    expect(validateImageFile({ name: "a.heic", type: "image/heic", size: 1000 })).toBe("fileType");
     expect(validateImageFile({ name: "a.jpg", type: "image/jpeg", size: 10 * 1024 * 1024 + 1 })).toBe("fileSize");
   });
   it("links must be http/https", () => {

@@ -29,8 +29,8 @@ import type { InputType, Lang } from "@/types";
 const MAX_CHARS = 5000;
 const MIN_CHARS = 20;
 const MAX_BYTES = 10 * 1024 * 1024;
-const MIME = ["image/jpeg", "image/png", "image/webp", "image/gif", "image/bmp", "image/heic", "image/heif"];
-const EXT = ["jpg", "jpeg", "png", "webp", "gif", "bmp", "heic", "heif"];
+const MIME = ["image/jpeg", "image/png", "image/webp", "image/gif"];
+const EXT = ["jpg", "jpeg", "png", "webp", "gif"];
 
 export function validateImageFile(file: { name: string; type: string; size: number }): "fileType" | "fileSize" | null {
   const ext = file.name.split(".").pop()?.toLowerCase() ?? "";
@@ -237,7 +237,7 @@ export function VerificationBox({ className }: { className?: string }) {
               <input
                 ref={fileInput}
                 type="file"
-                accept=".jpg,.jpeg,.png,.webp,.gif,.bmp,.heic,.heif,image/*"
+                accept=".jpg,.jpeg,.png,.webp,.gif"
                 className="sr-only"
                 aria-label={t.verify.browse}
                 onChange={(e) => { handleFile(e.target.files?.[0]); e.target.value = ""; }}
