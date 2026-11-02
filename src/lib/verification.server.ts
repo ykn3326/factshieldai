@@ -6,6 +6,7 @@ import type { Lang, Localized, StepKey, StepState, VerificationReport, Verificat
 import { createLovableAiGatewayRunIdFetch } from "./ai/run-id.server.ts";
 import { retrieveWithBackoff } from "./retrieval-retry";
 import { comparisonSchema, extractionSchema, isPublicUrl, publicationDate, rankDocuments, sourceType, validateComparison, verificationRequestSchema, type RetrievedDocument } from "./verification-rules";
+import { resolveProviderConfig } from "./verification-config";
 
 class VerificationError extends Error {
   constructor(public status: number, public code: string, public detail?: string) { super(code); }
@@ -16,13 +17,17 @@ const object = (v: unknown): JsonObject => v && typeof v === "object" && !Array.
 const str = (v: unknown) => typeof v === "string" ? v : "";
 const localized = (s: string): Localized => ({ en: s, hi: s, pa: s });
 
+// Direct mode (independent hosting) has no Lovable Cloud admin access; denials then stop only the current request.
+const isDirect = () => resolveProviderConfig(process.env).mode === "direct";
 async function readBlock() {
+  if (isDirect()) return;
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const { data, error } = await supabaseAdmin.from("verification_service_blocks").select("status,message").eq("service", "ai").maybeSingle();
   if (error) throw new VerificationError(503, "configuration");
   if (data) throw new VerificationError(data.status, "serviceBlocked", data.message);
 }
 async function persistBlock(status: number, message: string) {
+  if (isDirect()) return;
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const { error } = await supabaseAdmin.from("verification_service_blocks").upsert({ service: "ai", status, message });
   if (error) console.error("Could not persist verification service block", error.code);
@@ -38,13 +43,14 @@ function safeMessage(body: string): string {
 
 async function firecrawl(path: string, body: JsonObject, signal: AbortSignal): Promise<JsonObject> {
   const key = process.env["FIRECRAWL_API_KEY"];
+  const direct = isDirect();
   const aiKey = process.env["LOVABLE_API_KEY"];
-  if (!key || !aiKey) throw new VerificationError(503, "configuration");
-  const response = await retrieveWithBackoff(() => fetch(`https://connector-gateway.lovable.dev/firecrawl/v2/${path}`, {
-    method: "POST", signal,
-    headers: { "Content-Type": "application/json", Authorization: `Bearer ${aiKey}`, "X-Connection-Api-Key": key },
-    body: JSON.stringify(body),
-  }), signal);
+  if (!key || (!direct && !aiKey)) throw new VerificationError(503, "configuration");
+  const url = direct ? `https://api.firecrawl.dev/v2/${path}` : `https://connector-gateway.lovable.dev/firecrawl/v2/${path}`;
+  const headers: Record<string, string> = direct
+    ? { "Content-Type": "application/json", Authorization: `Bearer ${key}` }
+    : { "Content-Type": "application/json", Authorization: `Bearer ${aiKey}`, "X-Connection-Api-Key": key };
+  const response = await retrieveWithBackoff(() => fetch(url, { method: "POST", signal, headers, body: JSON.stringify(body) }), signal);
   if (!response.ok) {
     const message = safeMessage(await response.text());
     console.error("Evidence retrieval failed", response.status, message);
