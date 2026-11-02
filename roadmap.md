@@ -21,3 +21,7 @@
 - [x] Improve generic page titles and route-specific social descriptions; verify rendered metadata on all 14 content routes.
 - [x] Recheck contact findings: no false success or placeholder remains; disabled delivery safeguard passes its test.
 - [ ] Resolve both contact findings by connecting actual delivery — blocked on a verified recipient and sending domain.
+
+# Vercel direct-mode deployment
+- [x] Add VERIFY_PROVIDER_MODE switch (lovable default; direct = Gemini + official Firecrawl + optional own database), setup SQL and Vercel guide.
+- [ ] Test live direct mode on Vercel — blocked on the owner's Gemini/Firecrawl keys set in Vercel.
