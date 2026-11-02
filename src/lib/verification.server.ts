@@ -17,17 +17,18 @@ const object = (v: unknown): JsonObject => v && typeof v === "object" && !Array.
 const str = (v: unknown) => typeof v === "string" ? v : "";
 const localized = (s: string): Localized => ({ en: s, hi: s, pa: s });
 
-// Direct mode (independent hosting) has no Lovable Cloud admin access; denials then stop only the current request.
+// Direct mode uses the host's own database for blocks when configured; otherwise denials stop only the current request.
 const isDirect = () => resolveProviderConfig(process.env).mode === "direct";
+const blocksEnabled = () => resolveProviderConfig(process.env).blockStore;
 async function readBlock() {
-  if (isDirect()) return;
+  if (!blocksEnabled()) return;
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const { data, error } = await supabaseAdmin.from("verification_service_blocks").select("status,message").eq("service", "ai").maybeSingle();
   if (error) throw new VerificationError(503, "configuration");
   if (data) throw new VerificationError(data.status, "serviceBlocked", data.message);
 }
 async function persistBlock(status: number, message: string) {
-  if (isDirect()) return;
+  if (!blocksEnabled()) return;
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const { error } = await supabaseAdmin.from("verification_service_blocks").upsert({ service: "ai", status, message });
   if (error) console.error("Could not persist verification service block", error.code);
@@ -97,18 +98,24 @@ export async function handleVerification(request: Request): Promise<Response> {
     input = { ...parsed, ...(parsed.type === "image" ? { fileName: parsed.fileName, fileSize: parsed.fileSize } : {}) };
   } catch { return errorResponse(new VerificationError(400, "invalidInput")); }
   try { await readBlock(); } catch (e) { return errorResponse(e instanceof VerificationError ? e : new VerificationError(503, "configuration")); }
-  const key = process.env["LOVABLE_API_KEY"];
-  if (!key || !process.env["FIRECRAWL_API_KEY"]) return errorResponse(new VerificationError(503, "configuration"));
+  const config = resolveProviderConfig(process.env);
+  if (config.missing.length) {
+    console.error(`Verification setup incomplete (${config.mode} mode); missing: ${config.missing.join(", ")}`);
+    return errorResponse(new VerificationError(503, "configuration", `Missing server setting(s): ${config.missing.join(", ")}`));
+  }
+  const direct = config.mode === "direct";
+  const key = (direct ? process.env["GEMINI_API_KEY"] : process.env["LOVABLE_API_KEY"]) ?? "";
 
   const abort = new AbortController();
   request.signal.addEventListener("abort", () => abort.abort(), { once: true });
   const correlation = createLovableAiGatewayRunIdFetch();
   let gatewayError: VerificationError | undefined;
+  // Direct mode: official Gemini API via its OpenAI-compatible endpoint (structured JSON output).
   const provider = createOpenAI({
-    baseURL: "https://ai.gateway.lovable.dev/v1", apiKey: key,
-    headers: { "Lovable-API-Key": key, "X-Lovable-AIG-SDK": "vercel-ai-sdk" },
+    baseURL: direct ? "https://generativelanguage.googleapis.com/v1beta/openai" : "https://ai.gateway.lovable.dev/v1", apiKey: key,
+    headers: direct ? {} : { "Lovable-API-Key": key, "X-Lovable-AIG-SDK": "vercel-ai-sdk" },
     fetch: async (url, init) => {
-      const response = await correlation.fetch(url, init);
+      const response = direct ? await fetch(url, init) : await correlation.fetch(url, init);
       if (!response.ok) {
         const message = safeMessage(await response.clone().text());
         gatewayError = new VerificationError(response.status, "analysisFailed", message);
@@ -128,9 +135,9 @@ export async function handleVerification(request: Request): Promise<Response> {
       const ai = async <T>(schema: z.ZodType<T>, messages: ModelMessage[], system: string): Promise<T> => {
         gatewayError = undefined;
         const result = streamText({
-          model: provider.responses("openai/gpt-6-astra"), system, messages,
+          model: direct ? provider.chat(process.env["GEMINI_MODEL"] || "gemini-2.5-flash") : provider.responses("openai/gpt-6-astra"), system, messages,
           output: Output.object({ schema }), maxRetries: 0, abortSignal: abort.signal,
-          providerOptions: { openai: { forceReasoning: true, reasoningEffort: "low", reasoningSummary: "auto", store: false, include: ["reasoning.encrypted_content"] } },
+          providerOptions: direct ? {} : { openai: { forceReasoning: true, reasoningEffort: "low", reasoningSummary: "auto", store: false, include: ["reasoning.encrypted_content"] } },
         });
         try {
           const output = await result.output;
