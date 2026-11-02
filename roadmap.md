@@ -24,4 +24,5 @@
 
 # Vercel direct-mode deployment
 - [x] Add VERIFY_PROVIDER_MODE switch (lovable default; direct = Gemini + official Firecrawl + optional own database), setup SQL and Vercel guide.
+- [x] Add token-protected deployment health check (`/api/public/health`).
 - [ ] Test live direct mode on Vercel — blocked on the owner's Gemini/Firecrawl keys set in Vercel.

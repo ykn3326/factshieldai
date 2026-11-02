@@ -28,3 +28,8 @@ Framework: Other · Build command: `npm run build` (or `bun run build`) · Outpu
 2. Add the variables above in Vercel for Production (and Preview if used).
 3. Redeploy (env changes need a new deployment).
 4. Submit a real claim on the Vercel site. If setup is incomplete, the error's detail names the missing setting (never its value).
+
+## Health check
+Add `HEALTH_CHECK_TOKEN` (random, 16+ characters) in Vercel, then:
+`curl -H "Authorization: Bearer <token>" https://<your-site>/api/public/health`
+Returns `ai`, `search` and `database` states (`ok`, `missing`, `denied`, `unreachable`, `skipped`) and missing setting names — never key values or provider replies. Without the token it shows only mode and whether setup is complete, and makes no outbound calls.
