@@ -24,6 +24,7 @@ import { Route as TermsRouteImport } from './routes/terms'
 import { Route as VerifyRouteImport } from './routes/verify'
 import { Route as WelcomeRouteImport } from './routes/welcome'
 import { Route as ResultsIdRouteImport } from './routes/results.$id'
+import { Route as ApiPublicHealthRouteImport } from './routes/api/public/health'
 import { Route as ApiPublicVerifyRouteImport } from './routes/api/public/verify'
 
 const IndexRoute = IndexRouteImport.update({
@@ -101,6 +102,11 @@ const ResultsIdRoute = ResultsIdRouteImport.update({
   path: '/results/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicHealthRoute = ApiPublicHealthRouteImport.update({
+  id: '/api/public/health',
+  path: '/api/public/health',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicVerifyRoute = ApiPublicVerifyRouteImport.update({
   id: '/api/public/verify',
   path: '/api/public/verify',
@@ -123,6 +129,7 @@ export interface FileRoutesByFullPath {
   '/verify': typeof VerifyRoute
   '/welcome': typeof WelcomeRoute
   '/results/$id': typeof ResultsIdRoute
+  '/api/public/health': typeof ApiPublicHealthRoute
   '/api/public/verify': typeof ApiPublicVerifyRoute
 }
 export interface FileRoutesByTo {
@@ -141,6 +148,7 @@ export interface FileRoutesByTo {
   '/verify': typeof VerifyRoute
   '/welcome': typeof WelcomeRoute
   '/results/$id': typeof ResultsIdRoute
+  '/api/public/health': typeof ApiPublicHealthRoute
   '/api/public/verify': typeof ApiPublicVerifyRoute
 }
 export interface FileRoutesById {
@@ -160,6 +168,7 @@ export interface FileRoutesById {
   '/verify': typeof VerifyRoute
   '/welcome': typeof WelcomeRoute
   '/results/$id': typeof ResultsIdRoute
+  '/api/public/health': typeof ApiPublicHealthRoute
   '/api/public/verify': typeof ApiPublicVerifyRoute
 }
 export interface FileRouteTypes {
@@ -180,6 +189,7 @@ export interface FileRouteTypes {
     | '/verify'
     | '/welcome'
     | '/results/$id'
+    | '/api/public/health'
     | '/api/public/verify'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -198,6 +208,7 @@ export interface FileRouteTypes {
     | '/verify'
     | '/welcome'
     | '/results/$id'
+    | '/api/public/health'
     | '/api/public/verify'
   id:
     | '__root__'
@@ -216,6 +227,7 @@ export interface FileRouteTypes {
     | '/verify'
     | '/welcome'
     | '/results/$id'
+    | '/api/public/health'
     | '/api/public/verify'
   fileRoutesById: FileRoutesById
 }
@@ -235,6 +247,7 @@ export interface RootRouteChildren {
   VerifyRoute: typeof VerifyRoute
   WelcomeRoute: typeof WelcomeRoute
   ResultsIdRoute: typeof ResultsIdRoute
+  ApiPublicHealthRoute: typeof ApiPublicHealthRoute
   ApiPublicVerifyRoute: typeof ApiPublicVerifyRoute
 }
 
@@ -345,6 +358,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ResultsIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/health': {
+      id: '/api/public/health'
+      path: '/api/public/health'
+      fullPath: '/api/public/health'
+      preLoaderRoute: typeof ApiPublicHealthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/verify': {
       id: '/api/public/verify'
       path: '/api/public/verify'
@@ -371,6 +391,7 @@ const rootRouteChildren: RootRouteChildren = {
   VerifyRoute: VerifyRoute,
   WelcomeRoute: WelcomeRoute,
   ResultsIdRoute: ResultsIdRoute,
+  ApiPublicHealthRoute: ApiPublicHealthRoute,
   ApiPublicVerifyRoute: ApiPublicVerifyRoute,
 }
 export const routeTree = rootRouteImport
